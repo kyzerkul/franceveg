@@ -3,7 +3,6 @@
 
 -- ─── Extensions ───────────────────────────────────────────────────────────────
 
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 
 -- ─── Regions ──────────────────────────────────────────────────────────────────
@@ -12,7 +11,7 @@ CREATE EXTENSION IF NOT EXISTS "unaccent";
 CREATE TYPE region_type AS ENUM ('region', 'department', 'city', 'arrondissement');
 
 CREATE TABLE regions (
-  id          uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name        text NOT NULL,
   slug        text NOT NULL UNIQUE,
   type        region_type NOT NULL,
@@ -34,7 +33,7 @@ CREATE INDEX idx_regions_parent  ON regions(parent_id);
 CREATE TYPE user_role AS ENUM ('user', 'owner', 'admin');
 
 CREATE TABLE users (
-  id         uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   clerk_id   text NOT NULL UNIQUE,
   email      text NOT NULL UNIQUE,
   name       text,
@@ -50,7 +49,7 @@ CREATE INDEX idx_users_role     ON users(role);
 CREATE TYPE restaurant_status AS ENUM ('active', 'pending', 'rejected');
 
 CREATE TABLE restaurants (
-  id                  uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name                text NOT NULL,
   slug                text NOT NULL UNIQUE,
   description         text,
@@ -114,7 +113,7 @@ CREATE TRIGGER restaurants_updated_at
 CREATE TYPE claim_status AS ENUM ('pending', 'approved', 'rejected');
 
 CREATE TABLE claims (
-  id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   restaurant_id   uuid NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE,
   user_id         uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   status          claim_status NOT NULL DEFAULT 'pending',
@@ -135,7 +134,7 @@ CREATE INDEX idx_claims_status     ON claims(status);
 CREATE TYPE review_status AS ENUM ('pending', 'approved', 'rejected');
 
 CREATE TABLE reviews (
-  id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   restaurant_id   uuid NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE,
   user_id         uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   rating          smallint NOT NULL CHECK (rating BETWEEN 1 AND 5),
@@ -155,7 +154,7 @@ CREATE INDEX idx_reviews_status     ON reviews(status);
 -- ─── Blog ─────────────────────────────────────────────────────────────────────
 
 CREATE TABLE blog_posts (
-  id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   title           text NOT NULL,
   slug            text NOT NULL UNIQUE,
   content         text NOT NULL,
@@ -176,7 +175,7 @@ CREATE INDEX idx_blog_tags        ON blog_posts USING GIN(tags);
 -- ─── Restaurant submissions ───────────────────────────────────────────────────
 
 CREATE TABLE restaurant_submissions (
-  id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   submitted_by    uuid REFERENCES users(id) ON DELETE SET NULL,
   data            jsonb NOT NULL,
   status          text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
@@ -191,7 +190,7 @@ CREATE INDEX idx_submissions_status ON restaurant_submissions(status);
 CREATE TYPE job_type AS ENUM ('offer', 'cv');
 
 CREATE TABLE jobs (
-  id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   type            job_type NOT NULL,
   title           text NOT NULL,
   description     text NOT NULL,
@@ -214,7 +213,7 @@ CREATE INDEX idx_jobs_user        ON jobs(user_id);
 CREATE TYPE page_event_type AS ENUM ('view', 'click_website', 'click_phone', 'click_directions', 'click_map');
 
 CREATE TABLE page_events (
-  id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   restaurant_id   uuid NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE,
   event_type      page_event_type NOT NULL,
   session_id      text,
@@ -234,7 +233,7 @@ CREATE TYPE subscription_plan   AS ENUM ('starter', 'pro');
 CREATE TYPE subscription_status AS ENUM ('active', 'cancelled', 'past_due');
 
 CREATE TABLE subscriptions (
-  id                      uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                      uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id                 uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   restaurant_id           uuid NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE,
   paddle_subscription_id  text NOT NULL UNIQUE,
@@ -251,7 +250,7 @@ CREATE INDEX idx_subscriptions_status     ON subscriptions(status);
 -- ─── Featured purchases (Paddle) ─────────────────────────────────────────────
 
 CREATE TABLE featured_purchases (
-  id                      uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                      uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   restaurant_id           uuid NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE,
   paddle_transaction_id   text NOT NULL UNIQUE,
   region_id               uuid REFERENCES regions(id) ON DELETE SET NULL,
@@ -268,7 +267,7 @@ CREATE INDEX idx_featured_ends_at    ON featured_purchases(ends_at);
 CREATE TYPE message_type AS ENUM ('modification_request', 'general', 'claim_message');
 
 CREATE TABLE messages (
-  id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   from_user_id    uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   restaurant_id   uuid REFERENCES restaurants(id) ON DELETE SET NULL,
   type            message_type NOT NULL,
