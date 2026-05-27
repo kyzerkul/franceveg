@@ -1,10 +1,31 @@
 import type { Metadata } from 'next'
-import { Geist } from 'next/font/google'
+import { Playfair_Display, Plus_Jakarta_Sans, Inter } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
 import { SITE_NAME, SITE_URL } from '@/lib/seo'
+import { Navbar } from '@/components/ui/Navbar'
+import { Footer } from '@/components/ui/Footer'
 import './globals.css'
 
-const geist = Geist({ subsets: ['latin'], variable: '--font-geist' })
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  weight: ['400', '600', '700', '800'],
+  variable: '--font-playfair',
+  display: 'swap',
+})
+
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-jakarta',
+  display: 'swap',
+})
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-inter',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -21,10 +42,22 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider>
-      <html lang="fr" className={geist.variable}>
-        <body className="min-h-screen bg-white text-gray-900 antialiased">
-          {children}
+    <ClerkProvider
+      signInUrl="/connexion"
+      signUpUrl="/inscription"
+      signInFallbackRedirectUrl="/dashboard"
+      signUpFallbackRedirectUrl="/dashboard"
+    >
+      <html lang="fr" className={`${playfair.variable} ${jakarta.variable} ${inter.variable}`}>
+        <body
+          className="min-h-screen bg-white antialiased"
+          style={{
+            fontFamily: 'var(--font-inter), system-ui, sans-serif',
+          }}
+        >
+          <Navbar />
+          <main>{children}</main>
+          <Footer />
         </body>
       </html>
     </ClerkProvider>

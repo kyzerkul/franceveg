@@ -21,8 +21,18 @@ export class RestaurantsController {
     return this.service.getSlugs()
   }
 
+  @Get('path-slugs')
+  getPathSlugs() {
+    return this.service.getPathSlugs()
+  }
+
+  @Get('tag-coverage')
+  getTagCoverage() {
+    return this.service.getTagCoverage()
+  }
+
   @Get(':slug')
-  findOne(@Param('slug') slug: string) {
-    return this.service.findBySlug(slug)
+  findOne(@Param('slug') slug: string, @Query('region') regionSlug?: string) {
+    return this.service.findBySlug(slug, regionSlug)
   }
 }

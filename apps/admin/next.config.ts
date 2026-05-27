@@ -1,7 +1,20 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
+
+const securityHeaders = [
+  { key: 'X-Content-Type-Options',  value: 'nosniff' },
+  { key: 'X-Frame-Options',          value: 'DENY' },
+  { key: 'X-XSS-Protection',         value: '1; mode=block' },
+  { key: 'Referrer-Policy',           value: 'strict-origin-when-cross-origin' },
+  { key: 'X-Robots-Tag',              value: 'noindex, nofollow' },
+]
 
 const nextConfig: NextConfig = {
-  /* config options here */
-};
+  images: {
+    remotePatterns: [{ protocol: 'https', hostname: '**' }],
+  },
+  async headers() {
+    return [{ source: '/(.*)', headers: securityHeaders }]
+  },
+}
 
-export default nextConfig;
+export default nextConfig

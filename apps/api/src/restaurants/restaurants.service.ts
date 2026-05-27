@@ -16,7 +16,7 @@ export class RestaurantsService {
         id, name, slug, short_description, address, city, zip_code,
         cover_image, price_range, tags, cuisine_types, is_featured,
         lat, lng, status,
-        region:regions!region_id(id, name, slug),
+        region:regions!region_id(id, name, slug, type),
         reviews_count:reviews(count)
       `, { count: 'exact' })
       .eq('status', 'active')
@@ -63,8 +63,18 @@ export class RestaurantsService {
     }
   }
 
-  async findBySlug(slug: string) {
-    const { data, error } = await this.supabase.client
+  async findBySlug(slug: string, regionSlug?: string) {
+    let regionId: string | null = null
+    if (regionSlug) {
+      const { data: region } = await this.supabase.client
+        .from('regions')
+        .select('id')
+        .eq('slug', regionSlug)
+        .maybeSingle()
+      if (region) regionId = region.id
+    }
+
+    let query = this.supabase.client
       .from('restaurants')
       .select(`
         *,
@@ -76,8 +86,10 @@ export class RestaurantsService {
       .eq('slug', slug)
       .eq('status', 'active')
       .eq('reviews.status', 'approved')
-      .single()
 
+    if (regionId) query = query.eq('region_id', regionId)
+
+    const { data, error } = await query.maybeSingle()
     if (error || !data) throw new NotFoundException(`Restaurant "${slug}" introuvable`)
     return data
   }
@@ -88,7 +100,7 @@ export class RestaurantsService {
       .select(`
         id, name, slug, short_description, cover_image,
         city, price_range, tags, cuisine_types, is_featured,
-        region:regions!region_id(id, name, slug)
+        region:regions!region_id(id, name, slug, type)
       `)
       .eq('status', 'active')
       .eq('is_featured', true)
@@ -106,5 +118,41 @@ export class RestaurantsService {
       .select('slug')
       .eq('status', 'active')
     return (data ?? []).map((r) => r.slug)
+  }
+
+  /**
+   * Returns all restaurants with their region slug, for building URLs in static params.
+   * Format: { slug: "le-shanti", city: "Dijon", region: { slug: "dijon", type: "city" } }
+   */
+  async getTagCoverage(): Promise<{ regionSlug: string; tag: string }[]> {
+    const { data } = await this.supabase.client
+      .from('restaurants')
+      .select('tags, region:regions!region_id(slug)')
+      .eq('status', 'active')
+      .not('region_id', 'is', null)
+
+    const seen = new Set<string>()
+    const result: { regionSlug: string; tag: string }[] = []
+
+    for (const r of (data ?? []) as unknown as Array<{ tags: string[]; region: { slug: string } | null }>) {
+      const regionSlug = r.region?.slug
+      if (!regionSlug) continue
+      for (const tag of r.tags ?? []) {
+        const key = `${regionSlug}:${tag}`
+        if (!seen.has(key)) {
+          seen.add(key)
+          result.push({ regionSlug, tag })
+        }
+      }
+    }
+    return result
+  }
+
+  async getPathSlugs() {
+    const { data } = await this.supabase.client
+      .from('restaurants')
+      .select('slug, city, region:regions!region_id(slug, type)')
+      .eq('status', 'active')
+    return data ?? []
   }
 }

@@ -35,7 +35,7 @@ export class RegionsService {
     const regionIds = [region.id, ...(children ?? []).map((c) => c.id)]
     const { data: restaurants, count } = await this.supabase.client
       .from('restaurants')
-      .select('id, name, slug, short_description, cover_image, city, price_range, tags, is_featured', { count: 'exact' })
+      .select('id, name, slug, short_description, cover_image, city, price_range, tags, cuisine_types, is_featured, lat, lng, region:regions!region_id(id, name, slug, type), reviews_count:reviews(count)', { count: 'exact' })
       .eq('status', 'active')
       .in('region_id', regionIds)
       .order('is_featured', { ascending: false })
@@ -50,6 +50,49 @@ export class RegionsService {
       .from('regions')
       .select('slug, type')
     return (data ?? []).map((r) => r.slug)
+  }
+
+  async getCities() {
+    const { data: cities } = await this.supabase.client
+      .from('regions')
+      .select('id, name, slug, type')
+      .eq('type', 'city')
+      .order('name')
+    if (!cities?.length) return []
+
+    const cityIds = cities.map((c) => c.id)
+
+    const { data: children } = await this.supabase.client
+      .from('regions')
+      .select('id, parent_id')
+      .in('parent_id', cityIds)
+
+    const childToParent: Record<string, string> = {}
+    for (const c of children ?? []) {
+      if (c.parent_id) childToParent[c.id] = c.parent_id
+    }
+
+    const allRegionIds = [...cityIds, ...(children ?? []).map((c) => c.id)]
+    const { data: restaurants } = await this.supabase.client
+      .from('restaurants')
+      .select('region_id')
+      .eq('status', 'active')
+      .in('region_id', allRegionIds)
+
+    const countMap: Record<string, number> = {}
+    for (const r of restaurants ?? []) {
+      const rid = r.region_id as string
+      const parentId = childToParent[rid] ?? rid
+      countMap[parentId] = (countMap[parentId] ?? 0) + 1
+    }
+
+    return cities.map((city) => ({
+      id: city.id,
+      name: city.name,
+      slug: city.slug,
+      type: city.type,
+      total_restaurants: countMap[city.id] ?? 0,
+    }))
   }
 
   async getCitySlugs(): Promise<{ slug: string; type: string }[]> {

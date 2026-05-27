@@ -15,6 +15,11 @@ export class RegionsController {
     return this.service.getSlugs()
   }
 
+  @Get('cities')
+  getCities() {
+    return this.service.getCities()
+  }
+
   @Get(':slug')
   findOne(@Param('slug') slug: string) {
     return this.service.findBySlug(slug)

@@ -64,7 +64,12 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
 CLERK_SECRET_KEY=
 API_URL=http://localhost:4000
+NEXT_PUBLIC_API_URL=http://localhost:4000
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+CLERK_SIGN_IN_URL=/connexion
+CLERK_SIGN_UP_URL=/inscription
+CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
+CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
 ```
 
 **apps/admin/.env.local**
@@ -87,11 +92,13 @@ PORT=4000
 
 ## Phases
 1. **Phase 1** ✅ Foundation — monorepo, DB, Auth skeleton
-2. **Phase 2** Restaurant directory core — pages, SEO, CSV import
-3. **Phase 3** Comptes + avis — reviews, claim, analytics owner
-4. **Phase 4** Blog + emploi
+2. **Phase 2** ✅ Restaurant directory core — pages, SEO, CSV import
+3. **Phase 3** ✅ Comptes + avis — reviews, claim, analytics owner
+4. **Phase 4** ✅ Blog + emploi
 5. **Phase 5** Dashboard admin complet
 6. **Phase 6** Monétisation Paddle
+
+> Suivi détaillé → [SUIVI.md](./SUIVI.md)
 
 ## SEO — Règles critiques
 - `generateMetadata()` sur **chaque** page Next.js

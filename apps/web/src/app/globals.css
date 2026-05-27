@@ -1,26 +1,79 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* ── Fonts ── */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-heading: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  /* ── Green palette (override Tailwind defaults) ── */
+  --color-green-50:  #F0FDF4;
+  --color-green-100: #D8F3DC;
+  --color-green-200: #B7E4C7;
+  --color-green-300: #95D5B2;
+  --color-green-400: #74C69D;
+  --color-green-500: #52B788;
+  --color-green-600: #40916C;
+  --color-green-700: #2D6A4F;
+  --color-green-800: #1B4332;
+  --color-green-900: #081C15;
+
+  /* ── Orange palette ── */
+  --color-orange-50:  #FFF5F0;
+  --color-orange-100: #FFE8DC;
+  --color-orange-200: #FCDCCC;
+  --color-orange-300: #F9BDA7;
+  --color-orange-400: #F7A285;
+  --color-orange-500: #F4845F;
+  --color-orange-600: #E05B35;
+  --color-orange-700: #C4401A;
+
+  /* ── Custom brand colors ── */
+  --color-ivory: #FDF6EC;
+  --color-cream: #FAF3E0;
+  --color-gold: #D4A853;
+  --color-gold-light: #FEF3C7;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* ── Base styles ── */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+  color: #1A1A2E;
+  background: #fff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+.font-display {
+  font-family: var(--font-display) !important;
+}
+
+/* ── Custom scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #40916C; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #2D6A4F; }
+
+/* ── Focus visible ── */
+:focus-visible { outline: 2px solid #40916C; outline-offset: 2px; }
+
+/* ── Card hover animation ── */
+.card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.06);
+}
+
+/* ── Leaf pattern background ── */
+.bg-leaf-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2340916C' fill-opacity='0.04'%3E%3Cpath d='M40 8 Q55 25 40 42 Q25 25 40 8Z'/%3E%3Cpath d='M12 45 Q27 62 12 79 Q-3 62 12 45Z'/%3E%3Cpath d='M68 45 Q83 62 68 79 Q53 62 68 45Z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ── Smooth scroll ── */
+html { scroll-behavior: smooth; }
